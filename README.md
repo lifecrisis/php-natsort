@@ -17,7 +17,7 @@ is useful along with a discussion of its limitations.
 
 The syntax for the invocation of the `natsort` script is as follows:
 
-```bash
+```
 natsort [-i] [-r] [--] [FILE, ...]
 ```
 
@@ -27,9 +27,9 @@ specified, the lines to be sorted are read from the standard input.
 
 The allowed options are:
 
-* `-i` - ignore case
-* `-r` - reverse the sort order
-* `--` - signal the end of options, remaining arguments are files
+* `-i` ignores case
+* `-r` reverses the sort order
+* `--` signals the end of options, remaining arguments are files
 
 I've found the `-i` option to be particularly useful.
 
