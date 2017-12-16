@@ -1,0 +1,93 @@
+#!/usr/bin/php
+<?php
+
+// usage: natsort [-i] [-r] [--] [FILE, ...]
+// Read all lines from the given files and sort them naturally, printing the
+// result to stdout.  If no file arguments are specified, read from stdin.
+//
+// Options:
+//   -i: ignore case
+//   -r: reverse sort order
+//
+// Works with PHP version 5.6 or later.
+
+
+$script_name = basename($argv[0]);
+$args = array_slice($argv, 1); // re-writes keys from 0
+
+// Operands
+$files = array();
+
+// Options
+$ignore_case = false;
+$reverse = false;
+
+// Status
+$err = 0;
+
+foreach ($args as $i => $arg) {
+
+    if (strcmp($arg, '--') == 0) {
+        $files = array_merge($files, array_slice($args, $i + 1));
+        break;
+    }
+
+    switch ($arg) {
+        case '-i':
+            $ignore_case = true;
+            break;
+        case '-r':
+            $reverse = true;
+            break;
+        case '-ir':
+        case '-ri':
+            $ignore_case = $reverse = true;
+            break;
+        default:
+            $files[] = $arg;
+            break;
+    }
+}
+
+$lines = array();
+
+if (empty($files)) {
+
+    while (!feof(STDIN))
+        $lines[] = fgets(STDIN);
+}
+
+foreach ($files as $file) {
+
+    if (!is_file($file)) {
+        fwrite(STDERR, "{$script_name}: file \"{$file}\" not found\n");
+        $err = 1;
+        continue;
+    }
+
+    if (!is_readable($file)) {
+        fwrite(STDERR, "{$script_name}: file \"{$file}\" could not be read\n");
+        $err = 1;
+        continue;
+    }
+
+    $file_lines = file($file);
+
+    if ($file_lines === false) {
+        fwrite(STDERR, "{$script_name}: read error for file \"{$file}\"\n");
+        $err = 2;
+        continue;
+    }
+
+    $lines = array_merge($lines, $file_lines);
+}
+
+$sort_flags = $ignore_case ? SORT_NATURAL | SORT_FLAG_CASE : SORT_NATURAL;
+sort($lines, $sort_flags);
+
+if ($reverse)
+    $lines = array_reverse($lines);
+
+echo implode('', $lines);
+
+exit($err);
